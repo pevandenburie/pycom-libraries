@@ -11,6 +11,7 @@ import time
 import errno
 import _thread
 import socket
+import struct
 
 
 PROTOCOL_VERSION = const(2)
@@ -119,9 +120,10 @@ class NanoGateway:
 
     def _connect_to_wifi(self):
         self.wlan.connect(self.ssid, auth=(None, self.password))
-        while not self.wlan.isconnected():
-            time.sleep(0.5)
-        print("WiFi connected!")
+        # while not self.wlan.isconnected():
+        #     time.sleep(0.5)
+        # print("WiFi connected!")
+        print("Bypass WiFi connection")
 
     def _dr_to_sf(self, dr):
         sf = dr[2:4]
@@ -187,6 +189,11 @@ class NanoGateway:
             self.rxok += 1
             rx_data = self.lora_sock.recv(256)
             stats = lora.stats()
+
+            recv_pkg_len = rx_data[1]
+            _LORA_PKG_FORMAT = "!BB%ds"
+            print('RX_PACKET_EVENT', struct.unpack(_LORA_PKG_FORMAT % 30, rx_data))
+
             self._push_data(self._make_node_packet(rx_data, self.rtc.now(), stats.rx_timestamp, stats.sfrx, stats.rssi, stats.snr))
             self.rxfw += 1
         if events & LoRa.TX_PACKET_EVENT:

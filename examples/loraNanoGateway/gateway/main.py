@@ -12,12 +12,15 @@ lora = LoRa(mode=LoRa.LORA, rx_iq=True)
 lora_sock = socket.socket(socket.AF_LORA, socket.SOCK_RAW)
 lora_sock.setblocking(False)
 
+print('Started')
+
 while (True):
    recv_pkg = lora_sock.recv(512)
    if (len(recv_pkg) > 2):
       recv_pkg_len = recv_pkg[1]
 
-      device_id, pkg_len, msg = struct.unpack(_LORA_PKG_FORMAT % recv_pkg_len, recv_pkg)
+      #device_id, pkg_len, msg = struct.unpack(_LORA_PKG_FORMAT % recv_pkg_len, recv_pkg)
+      device_id, pkg_len, msg = struct.unpack(_LORA_PKG_FORMAT % 32, recv_pkg)
 
       # If the uart = machine.UART(0, 115200) and os.dupterm(uart) are set in the boot.py this print should appear in the serial port
       print('Device: %d - Pkg:  %s' % (device_id, msg))
