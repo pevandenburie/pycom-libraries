@@ -47,6 +47,7 @@ from binascii import unhexlify
 # from Crypto.Hash import BLAKE2s
 # from Crypto.Random import get_random_bytes
 
+from Utils import long_to_bytes
 
 def enum(**enums):
     return type('Enum', (), enums)
@@ -57,6 +58,10 @@ MacStatus = enum(NOT_STARTED=0, PROCESSING_AUTH_DATA=1, PROCESSING_PLAINTEXT=2)
 from ucrypto import AES
 import binascii
 import array
+
+# Workaround
+def is_writeable_buffer(data):
+    return True
 
 class AesFactory(AES):
     # Size of a data block (in bytes)
