@@ -73,27 +73,12 @@ class AesFactory(AES):
     def new(key, mode, nonce, **cipher_params):
         print(mode)
         print(nonce)
-        # nonce=bytes(b'\x00' * 16)
-        # nonce = [range(16)]
-        # nonce = bytes(b'\x00' * 16)
-        # key = bytes(b'\x00' * 16)
-        # nonce = bytes(binascii.unhexlify('34383433733695090000012233445566'))
         if (mode == AES.MODE_CBC):
             return AES(key, mode, IV=nonce)
         elif (mode == AES.MODE_CTR):
             return AES(key, mode, counter=nonce)
         else:
             return AES(key, mode, IV=nonce)
-        # return AES(key, mode, bytes( [ binascii.unhexlify('34383433733695095C52184B11223344'.replace(' ','')) ] ))
-        # return AES(key, mode, bytearray( range(16) ) )
-        # return AES(key, mode, bytearray( b'34383433733695095C52184B11223344' ) )
-        # if (mode == AES.MODE_CTR):
-        #     print("MODE_CTR")
-        #     return AES(key, mode, nonce)
-        # else:   # MODE_ECB
-        #     print("MODE_ECB")
-        #     return AES(key, mode)
-
 
 
 
@@ -213,8 +198,8 @@ class CcmMode(object):
         self._t = None
 
         # Allowed transitions after initialization
-        self._next = [self.update, self.encrypt, self.decrypt,
-                      self.digest, self.verify]
+        self._next = ["self.update", "self.encrypt", "self.decrypt",
+                      "self.digest", "self.verify"]
 
         # Cumulative lengths
         self._cumul_assoc_len = 0
@@ -306,12 +291,12 @@ class CcmMode(object):
             A piece of associated data. There are no restrictions on its size.
         """
 
-        if self.update not in self._next:
+        if "self.update" not in self._next:
             raise TypeError("update() can only be called"
                             " immediately after initialization")
 
-        self._next = [self.update, self.encrypt, self.decrypt,
-                      self.digest, self.verify]
+        self._next = ["self.update", "self.encrypt", "self.decrypt",
+                      "self.digest", "self.verify"]
 
         self._cumul_assoc_len += len(assoc_data)
         if self._assoc_len is not None and \
@@ -381,10 +366,10 @@ class CcmMode(object):
           Otherwise, ``None``.
         """
 
-        if self.encrypt not in self._next:
+        if "self.encrypt" not in self._next:
             raise TypeError("encrypt() can only be called after"
                             " initialization or an update()")
-        self._next = [self.encrypt, self.digest]
+        self._next = ["self.encrypt", "self.digest"]
 
         # No more associated data allowed from now
         if self._assoc_len is None:
@@ -401,7 +386,7 @@ class CcmMode(object):
         if self._msg_len is None:
             self._msg_len = len(plaintext)
             self._start_mac()
-            self._next = [self.digest]
+            self._next = ["self.digest"]
 
         self._cumul_msg_len += len(plaintext)
         if self._cumul_msg_len > self._msg_len:
@@ -445,10 +430,10 @@ class CcmMode(object):
           Otherwise, ``None``.
         """
 
-        if self.decrypt not in self._next:
+        if "self.decrypt" not in self._next:
             raise TypeError("decrypt() can only be called"
                             " after initialization or an update()")
-        self._next = [self.decrypt, self.verify]
+        self._next = ["self.decrypt", "self.verify"]
 
         # No more associated data allowed from now
         if self._assoc_len is None:
@@ -465,7 +450,7 @@ class CcmMode(object):
         if self._msg_len is None:
             self._msg_len = len(ciphertext)
             self._start_mac()
-            self._next = [self.verify]
+            self._next = ["self.verify"]
 
         self._cumul_msg_len += len(ciphertext)
         if self._cumul_msg_len > self._msg_len:
@@ -494,10 +479,11 @@ class CcmMode(object):
         :Return: the MAC, as a byte string.
         """
 
-        if self.digest not in self._next:
+        if "self.digest" not in self._next:
             raise TypeError("digest() cannot be called when decrypting"
                             " or validating a message")
-        self._next = [self.digest]
+        self._next = ["self.digest"]
+
         return self._digest()
 
     def _digest(self):
@@ -551,10 +537,10 @@ class CcmMode(object):
             or the key is incorrect.
         """
 
-        if self.verify not in self._next:
+        if "self.verify" not in self._next:
             raise TypeError("verify() cannot be called"
                             " when encrypting a message")
-        self._next = [self.verify]
+        self._next = ["self.verify"]
 
         self._digest()
         secret = get_random_bytes(16)
