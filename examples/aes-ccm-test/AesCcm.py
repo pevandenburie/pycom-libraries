@@ -72,7 +72,18 @@ class AesFactory(AES):
     #def new(self, key, mode, iv, **cipher_params):
     def new(key, mode, nonce, **cipher_params):
         print(mode)
-        return AES(key, mode, nonce)
+        print(nonce)
+        # nonce=bytes(b'\x00' * 16)
+        # nonce = [range(16)]
+        # nonce = bytes(b'\x00' * 16)
+        # key = bytes(b'\x00' * 16)
+        # nonce = bytes(binascii.unhexlify('34383433733695090000012233445566'))
+        if (mode == AES.MODE_CBC):
+            return AES(key, mode, IV=nonce)
+        elif (mode == AES.MODE_CTR):
+            return AES(key, mode, counter=nonce)
+        else:
+            return AES(key, mode, IV=nonce)
         # return AES(key, mode, bytes( [ binascii.unhexlify('34383433733695095C52184B11223344'.replace(' ','')) ] ))
         # return AES(key, mode, bytearray( range(16) ) )
         # return AES(key, mode, bytearray( b'34383433733695095C52184B11223344' ) )
@@ -218,7 +229,8 @@ class CcmMode(object):
         q = 15 - len(nonce)  # length of Q, the encoded message length
         self._cipher = self._factory.new(key,
                                          self._factory.MODE_CTR,
-                                         nonce=struct.pack("B", q - 1) + self.nonce,
+                                         #nonce=struct.pack("B", q - 1) + self.nonce,
+                                         nonce=struct.pack("B"*(16-len(nonce)), q - 1) + nonce,
                                          **cipher_params)
 
         # S_0, step 6 in 6.1 for j=0
