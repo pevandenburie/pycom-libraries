@@ -47,7 +47,8 @@ from binascii import unhexlify
 # from Crypto.Hash import BLAKE2s
 # from Crypto.Random import get_random_bytes
 
-from Utils import long_to_bytes
+from Utils import long_to_bytes, strxor
+
 
 def enum(**enums):
     return type('Enum', (), enums)
@@ -405,7 +406,8 @@ class CcmMode(object):
             self._mac_status = MacStatus.PROCESSING_PLAINTEXT
 
         self._update(plaintext)
-        return self._cipher.encrypt(plaintext, output=output)
+        #return self._cipher.encrypt(plaintext, output=output)
+        return self._cipher.encrypt(plaintext)
 
     def decrypt(self, ciphertext, output=None):
         """Decrypt data with the key set at initialization.
