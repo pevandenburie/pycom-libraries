@@ -62,6 +62,12 @@ def long_to_bytes(n, blocksize=0):
         s = (blocksize - len(s) % blocksize) * b'\x00' + s
     return s
 
+import binascii
+
 # Simplified version. See original at: https://github.com/Legrandin/pycryptodome/blob/master/lib/Crypto/Util/strxor.py
 def strxor(var1, var2):
+    print("strxor")
+    print(binascii.hexlify(var1))
+    print(binascii.hexlify(var2))
+    print(binascii.hexlify(bytes([ a ^ b for (a,b) in zip(var1, var2)])))
     return bytes([ a ^ b for (a,b) in zip(var1, var2)])

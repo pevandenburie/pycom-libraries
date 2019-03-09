@@ -82,7 +82,12 @@ class AesFactory(AES):
         if (mode == AES.MODE_CBC):
             return AES(key, mode, IV=nonce)
         elif (mode == AES.MODE_CTR):
-            return AES(key, mode, counter=nonce)
+            # return AES(key, mode, counter=nonce+ (b'\x00' * 3))
+            counter = bytearray(nonce)
+            counter.extend(bytes(b'\x00' *4))
+            print("MODE_CTR len n {} len c {}".format(len(nonce), len(counter)))
+
+            return AES(key, mode, counter=counter)
         else:
             return AES(key, mode, IV=nonce)
 
@@ -216,12 +221,14 @@ class CcmMode(object):
         # it will become a binary string no longer than the block size.
         self._cache = []
 
+        print("len(nonce): {}".format(len(nonce)))
+        print("len(self.nonce): {}".format(len(self.nonce)))
         # Start CTR cipher, by formatting the counter (A.3)
         q = 15 - len(nonce)  # length of Q, the encoded message length
         self._cipher = self._factory.new(key,
                                          self._factory.MODE_CTR,
-                                         #nonce=struct.pack("B", q - 1) + self.nonce,
-                                         nonce=struct.pack("B"*(16-len(nonce)), q - 1) + nonce,
+                                         nonce=struct.pack("B", q - 1) + self.nonce,
+                                         # nonce=struct.pack("B"*(16-len(nonce)), q - 1) + self.nonce,
                                          **cipher_params)
 
         # S_0, step 6 in 6.1 for j=0
