@@ -32,22 +32,11 @@
 Counter with CBC-MAC (CCM) mode.
 """
 
-# __all__ = ['CcmMode']
 
 import struct
 from binascii import unhexlify
 
-# from Crypto.Util.py3compat import (byte_string, bord,
-#                                    _copy_bytes)
-# from Crypto.Util._raw_api import is_writeable_buffer
-#
-# from Crypto.Util.strxor import strxor
-# from Crypto.Util.number import long_to_bytes
-#
-# from Crypto.Hash import BLAKE2s
-# from Crypto.Random import get_random_bytes
-
-from Utils import long_to_bytes, strxor
+from Utils import long_to_bytes, strxor, is_writeable_buffer
 
 
 def enum(**enums):
@@ -60,44 +49,28 @@ from ucrypto import AES
 import binascii
 import array
 
-# Workaround
-def is_writeable_buffer(data):
-    return True
 
 class AesFactory(AES):
     # Size of a data block (in bytes)
     block_size = 16
     # Size of a key (in bytes)
     key_size = (16, 24, 32)
-    # def __init__(self):
-        # # Size of a data block (in bytes)
-        # self.block_size = 16
-        # # Size of a key (in bytes)
-        # self.key_size = (16, 24, 32)
 
-    #def new(self, key, mode, iv, **cipher_params):
     def new(key, mode, nonce, **cipher_params):
-        print(mode)
-        print(nonce)
         if (mode == AES.MODE_CBC):
             return AES(key, mode, IV=nonce)
         elif (mode == AES.MODE_CTR):
-            # return AES(key, mode, counter=nonce+ (b'\x00' * 3))
+            # If nonce is smaller than block size, complete with zeros
             counter = bytearray(nonce)
-            counter.extend(bytes(b'\x00' *4))
-            print("MODE_CTR len n {} len c {}".format(len(nonce), len(counter)))
-
+            counter.extend( bytes(b'\x00' *(16-len(nonce))) )
             return AES(key, mode, counter=counter)
         else:
             return AES(key, mode, IV=nonce)
 
 
 
-#def new(key, *args, **kwargs) #, nonce, mac_len, msg_len=None, assoc_len=None, cipher_params=None):
 def new(key, *args, **kwargs):
-    print( dir(AesFactory) )
     return _create_cipher(factory=AesFactory, key=key, *args, **kwargs)
-
 
 
 
@@ -221,14 +194,11 @@ class CcmMode(object):
         # it will become a binary string no longer than the block size.
         self._cache = []
 
-        print("len(nonce): {}".format(len(nonce)))
-        print("len(self.nonce): {}".format(len(self.nonce)))
         # Start CTR cipher, by formatting the counter (A.3)
         q = 15 - len(nonce)  # length of Q, the encoded message length
         self._cipher = self._factory.new(key,
                                          self._factory.MODE_CTR,
                                          nonce=struct.pack("B", q - 1) + self.nonce,
-                                         # nonce=struct.pack("B"*(16-len(nonce)), q - 1) + self.nonce,
                                          **cipher_params)
 
         # S_0, step 6 in 6.1 for j=0
