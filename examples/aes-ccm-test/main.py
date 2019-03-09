@@ -1,4 +1,4 @@
-# import json
+import json
 # from base64 import b64encode
 import binascii
 #from aes_ccm import AesCcm
@@ -35,7 +35,7 @@ ciphertext, tag = cipher.encrypt_and_digest(data)
 
 json_k = [ 'nonce', 'header', 'ciphertext', 'tag' ]
 #json_v = [ b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag] ]
-#json_v = [ binascii.hexlify(x) for x in [cipher.nonce, header, ciphertext, tag] ]
-json_v = [ x.hex() for x in [cipher.nonce, header, ciphertext, tag] ]
+json_v = [ binascii.hexlify(x) for x in [cipher.nonce, header, ciphertext, tag] ]
+# json_v = [ x.hex() for x in [cipher.nonce, header, ciphertext, tag] ]
 result = json.dumps(dict(zip(json_k, json_v)))
 print(result)
